@@ -1,4 +1,4 @@
-; いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい
+; 造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造
 
     ; __UNICODE__ equ 1           ; uncomment to enable UNICODE build
 
@@ -28,11 +28,12 @@
 
 start:
 
-; いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい
+; 造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造
 
   ; ------------------
   ; set global values
   ; ------------------
+    ; rv means get the return values from a procedure.
     mov hInstance,   rv(GetModuleHandle, NULL)
     mov CommandLine, rv(GetCommandLine)
     mov hIcon,       rv(LoadIcon,hInstance,500)
@@ -56,7 +57,7 @@ start:
 
     invoke ExitProcess,eax
 
-; いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい
+; 造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造
 
 Main proc
 
@@ -183,7 +184,7 @@ Main proc
 
 Main endp
 
-; いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい
+; 造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造
 
 MsgLoop proc
 
@@ -206,7 +207,7 @@ MsgLoop proc
 
 MsgLoop endp
 
-; いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい
+; 造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造
 
 WndProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
 
@@ -219,19 +220,54 @@ WndProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
     LOCAL rct    :RECT
     LOCAL buffer1[260]:BYTE  ; these are two spare buffers
     LOCAL buffer2[260]:BYTE  ; for text manipulation etc..
+    LOCAL tbb   :TBBUTTON
+    LOCAL Tba   :TBADDBITMAP
 
     Switch uMsg
       Case WM_COMMAND
       ; -------------------------------------------------------------------
+        ;---------
+        ; toolbar
+        ;---------
         Switch wParam
           case 50
-            fn MsgboxI,hWin,"Button ID  50      ",ustr$(eax),MB_OK,500
+            fn SetWindowText,hWin,"Untitled"
+            invoke SetWindowText,hEdit,0
 
           case 51
-            fn MsgboxI,hWin,"Button ID  51      ",ustr$(eax),MB_OK,500
+            sas opatn, "All files",0,"*.*",0
+            mov fname, rv(open_file_dialog,hWin,hInstance,"Open File",opatn)
+            cmp BYTE PTR [eax], 0
+            jne @F
+            return 0
+
+          case 52
+            sas spatn, "All files",0,"*.*",0
+            mov fname, rv(save_file_dialog,hWin,hInstance,"Save File As ...",spatn)
+            cmp BYTE PTR [eax], 0
+            jne @F
+            return 0
+
+          case 53
+            invoke SendMessage,hEdit,WM_CUT,0,0
+
+          case 54
+            invoke SendMessage,hEdit,WM_COPY,0,0
+
+          case 55
+            invoke SendMessage,hEdit,EM_PASTESPECIAL,CF_TEXT,NULL
+
+          case 56
+            fn MsgboxI,hWin,"undo",ustr$(eax),MB_OK,500
+
+          case 57
+            fn MsgboxI,hWin,"search",ustr$(eax),MB_OK,500
+
+          case 58
+            fn MsgboxI,hWin,"replace",ustr$(eax),MB_OK,500
 
           case 1000
-          file_new:
+            file_new:
             fn SetWindowText,hWin,"Untitled"
             invoke SetWindowText,hEdit,0
 
@@ -288,9 +324,9 @@ WndProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
           case 1090
           app_close:
             invoke SendMessage,hWin,WM_SYSCOMMAND,SC_CLOSE,NULL
-
+          
           case 10000
-            invoke DialogBoxParam,hInstance,5000,hWin,ADDR AboutProc,0
+            fn MsgboxI,hWin,"Assembly term-project.", "About",MB_OK,500
 
         Endsw
       ; -------------------------------------------------------------------
@@ -305,8 +341,96 @@ WndProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
 
       case WM_CREATE
         mov hRebar,   rv(rebar,hInstance,hWin,rbht)     ; create the rebar control
-        mov hToolBar, rv(addband,hInstance,hRebar)      ; add the toolbar band to it
+        ;mov hToolBar, rv(addband,hInstance,hRebar)      ; add the toolbar band to it
         mov hStatus,  rv(StatusBar,hWin)                ; create the status bar
+        ;--------------------
+        ; Create the tool bar
+        ;--------------------
+
+        mov tbb.iBitmap,   0
+        mov tbb.idCommand, 0
+        mov tbb.fsState,   TBSTATE_ENABLED
+        mov tbb.fsStyle,   TBSTYLE_SEP
+        mov tbb.dwData,    0
+        mov tbb.iString,   0
+
+        invoke CreateToolbarEx,hWin,WS_CHILD or WS_CLIPSIBLINGS,
+                               300,1,0,0,ADDR tbb,
+                               1,16,16,0,0,sizeof TBBUTTON
+        mov hToolBar, eax
+        invoke ShowWindow,hToolBar,SW_SHOW
+
+        ;-----------------------------------------
+        ; Select tool bar bitmap from commctrl DLL
+        ;-----------------------------------------
+
+        mov Tba.hInst, HINST_COMMCTRL
+        mov Tba.nID, 1   ; btnsize 1=big 2=small
+
+        invoke SendMessage,hToolBar,TB_ADDBITMAP,1,ADDR Tba
+
+        ;------------------------
+        ; Add buttons to tool bar
+        ;------------------------
+
+        mov tbb.iBitmap,   STD_FILENEW
+        mov tbb.fsStyle,   TBSTYLE_BUTTON
+        mov tbb.idCommand, 50
+        invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
+
+        mov tbb.iBitmap,   STD_FILEOPEN
+        mov tbb.idCommand, 51
+        mov tbb.fsStyle,   TBSTYLE_BUTTON
+        invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
+
+        mov tbb.iBitmap,   STD_FILESAVE
+        mov tbb.idCommand, 52
+        mov tbb.fsStyle,   TBSTYLE_BUTTON
+        invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
+
+        mov tbb.idCommand, 0
+        mov tbb.fsStyle,   TBSTYLE_SEP
+        invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
+
+        mov tbb.iBitmap,   STD_CUT
+        mov tbb.idCommand, 53
+        mov tbb.fsStyle,   TBSTYLE_BUTTON
+        invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
+
+        mov tbb.iBitmap,   STD_COPY
+        mov tbb.idCommand, 54
+        mov tbb.fsStyle,   TBSTYLE_BUTTON
+        invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
+
+        mov tbb.iBitmap,   STD_PASTE
+        mov tbb.idCommand, 55
+        mov tbb.fsStyle,   TBSTYLE_BUTTON
+        invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
+
+        mov tbb.iBitmap,   STD_UNDO
+        mov tbb.idCommand, 56
+        mov tbb.fsStyle,   TBSTYLE_BUTTON
+        invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
+
+        mov tbb.iBitmap,   0
+        mov tbb.idCommand, 0
+        mov tbb.fsStyle,   TBSTYLE_SEP
+        invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
+
+        mov tbb.iBitmap,   STD_FIND
+        mov tbb.idCommand, 57
+        mov tbb.fsStyle,   TBSTYLE_BUTTON
+        invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
+
+        mov tbb.iBitmap,   STD_REPLACE
+        mov tbb.idCommand, 58
+        mov tbb.fsStyle,   TBSTYLE_BUTTON
+        invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
+
+        mov tbb.iBitmap,   0
+        mov tbb.idCommand, 0
+        mov tbb.fsStyle,   TBSTYLE_SEP
+        invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
 
       case WM_SIZE
         invoke MoveWindow,hStatus,0,0,0,0,TRUE
@@ -345,7 +469,7 @@ WndProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
 
 WndProc endp
 
-; いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい
+; 造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造
 
 TBcreate proc parent:DWORD
 
@@ -369,7 +493,7 @@ TBcreate proc parent:DWORD
 
 TBcreate endp
 
-; いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい
+; 造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造
 
 StatusBar proc hParent:DWORD
 
@@ -394,6 +518,6 @@ StatusBar proc hParent:DWORD
 
 StatusBar endp
 
-; いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい
+; 造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造造
 
 end start

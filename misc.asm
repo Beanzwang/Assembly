@@ -27,6 +27,7 @@ addband proc instance:DWORD,hrbar:DWORD
     LOCAL tbhandl   :DWORD
     LOCAL rbbi      :REBARBANDINFO
 
+    ; add toolbar button
     mov tbhandl, rv(TBcreate,hrbar)
 
     mov rbbi.cbSize,      sizeof REBARBANDINFO
@@ -73,115 +74,6 @@ MsgboxI proc hParent:DWORD,pText:DWORD,pTitle:DWORD,mbStyle:DWORD,IconID:DWORD
 MsgboxI endp
 
 ; ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
-
-AboutProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
-
-    LOCAL hStat     :DWORD
-    LOCAL hImage    :DWORD
-    LOCAL hbmp      :DWORD
-    LOCAL hDC       :DWORD
-    LOCAL hOld      :DWORD
-    LOCAL hFont     :DWORD
-    LOCAL rct       :RECT
-    LOCAL banner    :DWORD
-    LOCAL ttext     :DWORD
-
-      ; ------------------------------------
-      ; adjust the text formatting rectangle
-      ; here for the banner text below.
-      ; ------------------------------------
-        aTl equ <10>        ; top left
-        aTr equ <10>        ; top right
-        aLl equ <400>       ; lower left
-        aLr equ <40>        ; lower right
-        bHt equ <48>        ; set the bitmap height here
-
-        sas banner,"MASM32 Application Template",13,10,13,10
-
-        sas ttext,"Assembly hw.",13,10,13,10,"MASM SDK used"
-
-    switch uMsg
-      case WM_INITDIALOG
-        mov hImage, rv(GetDlgItem,hWin,999)
-        mov hStat,  rv(GetDlgItem,hWin,997)
-
-
-        invoke SetWindowText,hStat,ttext
-
-      ; --------------------------------------------------------
-      ; set the static control style so it will display a bitmap
-      ; --------------------------------------------------------
-        invoke SetWindowLong,hImage,GWL_STYLE,WS_VISIBLE or SS_BITMAP
-
-      ; ---------------------------------------------------------
-      ; reuse the toolbar bitmap as the display banner background
-      ; ---------------------------------------------------------
-        mov hbmp, rv(LoadImage,hInstance,800,IMAGE_BITMAP,600,bHt,LR_LOADTRANSPARENT or LR_LOADMAP3DCOLORS)
-
-      ; -------------------------------------
-      ; set the image into the static control
-      ; -------------------------------------
-        invoke SendMessage,hImage,STM_SETIMAGE,IMAGE_BITMAP,hbmp
-
-      ; ---------------------------------------------------------------
-      ; post a WM_PAINT message to the window so it updates the display
-      ; ---------------------------------------------------------------
-        invoke PostMessage,hWin,WM_PAINT,0,0
-
-      case WM_PAINT
-        mov hDC, rv(GetDC,hWin)
-        invoke SetBkMode,hDC,TRANSPARENT
-
-        fn CreateFont,20,10,0,0,800,FALSE,FALSE,FALSE, \
-                     ANSI_CHARSET,0,0,PROOF_QUALITY,DEFAULT_PITCH,"Arial"
-        mov hFont, eax
-
-        mov hOld, rv(SelectObject,hDC,hFont)
-
-      ; --------------------
-      ; draw the shadow text
-      ; --------------------
-        mov rct.left, aTl+2
-        mov rct.top, aTr+2
-        mov rct.right, aLl+2
-        mov rct.bottom, aLr+2
-        invoke SetTextColor,hDC,00000000h
-        invoke DrawText,hDC,banner,-1,ADDR rct,DT_LEFT or DT_VCENTER or DT_SINGLELINE
-
-      ; ----------------------
-      ; draw the highlite text
-      ; ----------------------
-        mov rct.left, aTl
-        mov rct.top, aTr
-        mov rct.right, aLl
-        mov rct.bottom, aLr
-        ; set the font color to white
-        invoke SetTextColor,hDC,00FFFFFFh
-        ; set the outline of the text to black
-        invoke DrawText,hDC,banner,-1,ADDR rct,DT_LEFT or DT_VCENTER or DT_SINGLELINE
-
-        invoke SelectObject,hDC,hOld
-
-        invoke ReleaseDC,hWin,hDC
-
-        xor eax, eax
-        ret
-
-      ; the OK button to exit the dialog.
-      case  WM_COMMAND
-        switch wParam
-          case IDOK
-            invoke EndDialog,hWin,0
-        endsw
-    endsw
-
-    xor eax, eax
-    ret
-
-AboutProc endp
-
-; ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
-
 open_file_dialog proc hParent:DWORD,Instance:DWORD,lpTitle:DWORD,lpFilter:DWORD
 
     LOCAL ofn:OPENFILENAME
