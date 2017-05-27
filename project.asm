@@ -258,7 +258,7 @@ WndProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
             invoke SendMessage,hEdit,EM_PASTESPECIAL,CF_TEXT,NULL
 
           case 56
-            fn MsgboxI,hWin,"undo",ustr$(eax),MB_OK,500
+            invoke SendMessage,hEdit,EM_UNDO,0,0
 
           case 57
             fn MsgboxI,hWin,"search",ustr$(eax),MB_OK,500
