@@ -49,6 +49,7 @@
         StatusBar        PROTO :DWORD
         open_file_dialog PROTO :DWORD,:DWORD,:DWORD,:DWORD
         save_file_dialog PROTO :DWORD,:DWORD,:DWORD,:DWORD
+        
 
 ; ÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-÷-
 

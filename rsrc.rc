@@ -16,11 +16,11 @@
 BEGIN
     POPUP "&File", , , 0
     BEGIN
-        MENUITEM "&New", 1000
+        MENUITEM "&New\tCtrl+N", 1000
         MENUITEM "", , 0x0800 /*MFT_SEPARATOR*/
-        MENUITEM "&Open", 1010
+        MENUITEM "&Open\tCtrl+O", 1010
         MENUITEM "", , 0x0800 /*MFT_SEPARATOR*/
-        MENUITEM "&Save", 1020
+        MENUITEM "&Save\tCtrl+S", 1020
         MENUITEM "", , 0x0800 /*MFT_SEPARATOR*/
         MENUITEM "&Exit", 1090
     END
@@ -32,8 +32,6 @@ BEGIN
         MENUITEM "&Cut\tCtrl+X",  1103
         MENUITEM "C&opy\tCtrl+C", 1104
         MENUITEM "&Paste\tCtrl+V",1105
-        MENUITEM "", , 0x0800 /*MFT_SEPARATOR*/
-        MENUITEM "Cl&ear\tDelete",1106
         MENUITEM "", , 0x0800 /*MFT_SEPARATOR*/
         MENUITEM "Select All\tCtrl+A",1107
         MENUITEM "&Find Text\tF2", 1108
