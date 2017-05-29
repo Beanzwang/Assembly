@@ -36,6 +36,8 @@ BEGIN
         MENUITEM "Cl&ear\tDelete",1106
         MENUITEM "", , 0x0800 /*MFT_SEPARATOR*/
         MENUITEM "Select All\tCtrl+A",1107
+        MENUITEM "&Find Text\tF2", 1108
+        MENUITEM "Find &Next\tF3", 1109
     END
     POPUP "&Help", , , 0
     BEGIN
@@ -56,6 +58,19 @@ BEGIN
     PUSHBUTTON      "OK", 1, 189,104,50,14, 0, , 0
 END
 
+
+300 DIALOGEX MOVEABLE IMPURE LOADONCALL DISCARDABLE 10, 10, 259, 50, 0
+STYLE DS_LOCALEDIT | DS_MODALFRAME | 0x0004 | DS_CENTER | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_POPUP
+CAPTION "Find"
+FONT 8, "MS Sans Serif", 700, 0 /*FALSE*/
+BEGIN
+    EDITTEXT        3092,   9,13,190,13, ES_AUTOHSCROLL | ES_LEFT, , 0
+    PUSHBUTTON      "&Find", 3090,  210,6,41,13, 0, , 0
+    PUSHBUTTON      "&Cancel", 3091,  210,22,41,13, 0, , 0
+    CTEXT           "Press F3 to find next", 65535,   12,2,182,10, SS_LEFT, , 0
+    CONTROL         "Case Sensitive", 3093, "Button", BS_AUTOCHECKBOX | WS_TABSTOP,   21,34,62,8, , 0
+    CONTROL         "Match Whole Word", 3094, "Button", BS_AUTOCHECKBOX | WS_TABSTOP,   115,34,77,8, , 0
+END
 
 
 // いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい

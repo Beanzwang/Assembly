@@ -12,8 +12,8 @@
       include \masm32\INCLUDE\shell32.inc
       include \masm32\INCLUDE\oleaut32.inc
       include \masm32\INCLUDE\msvcrt.inc
-
       include \masm32\macros\macros.asm
+      include \masm32\include\shlwapi.inc
 
 ;     libraries
 ;     ~~~~~~~~~
@@ -26,6 +26,7 @@
       includelib \masm32\LIB\shell32.lib
       includelib \masm32\LIB\oleaut32.lib
       includelib \masm32\LIB\msvcrt.lib
+      includelib \masm32\lib\shlwapi.lib
 
 ; ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 
@@ -38,6 +39,11 @@
         rebar            PROTO :DWORD,:DWORD,:DWORD
         addband          PROTO :DWORD,:DWORD
         TBcreate         PROTO :DWORD
+
+        TextFind         PROTO :DWORD,:DWORD
+        SearchProc       PROTO :DWORD,:DWORD,:DWORD,:DWORD
+        CallSearchDlg    PROTO
+        
         AboutProc        PROTO :DWORD,:DWORD,:DWORD,:DWORD
         MsgboxI          PROTO :DWORD,:DWORD,:DWORD,:DWORD,:DWORD
         StatusBar        PROTO :DWORD
@@ -153,8 +159,18 @@
         tbTile      dd ?
         hRebar      dd ?
         hToolBar    dd ?
-        hEdit     dd ?
+        hEdit       dd ?
         hStatus     dd ?
+
+        hCheck1       dd ?
+        hCheck2       dd ?
+        TextLen       dd ?
+        CaseFlag      dd ?
+        WholeWord     dd ?
+        CtrlFlag      dd ?
+        hMnu          dd ?
+        SearchText    db 128 dup(?)
+        STRING szDisplayName, "Untitled"
 
 IF 0  ; ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 
@@ -165,7 +181,7 @@ ENDIF ; ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
   .code
     include misc.asm
     include richedit.asm
-
+    include search.asm
 ; ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 
   ; ---------------------------

@@ -89,7 +89,7 @@ Main proc
   ; --------------------------------------
 
     STRING szClassName,   "Application_Class"
-    STRING szDisplayName, "Untitled"
+    
 
   ; ---------------------------------------------------
   ; set window class attributes in WNDCLASSEX structure
@@ -261,8 +261,8 @@ WndProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
             invoke SendMessage,hEdit,EM_UNDO,0,0
 
           case 57
-            fn MsgboxI,hWin,"search",ustr$(eax),MB_OK,500
-
+            invoke CallSearchDlg
+            return 0
           case 58
             fn MsgboxI,hWin,"replace",ustr$(eax),MB_OK,500
 
