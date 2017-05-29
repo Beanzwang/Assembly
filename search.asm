@@ -127,7 +127,6 @@ TextFind proc lpBuffer:DWORD, len2:DWORD
     mov tp, eax
 
     .if tp == -1
-      mov tp,0
       szText nomatch,"No further matches"
       invoke MessageBox,hWnd,ADDR nomatch,ADDR szDisplayName,MB_OK
       ret
