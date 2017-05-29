@@ -302,10 +302,7 @@ WndProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
 
           case 57
             invoke CallSearchDlg
-            return 0
-          case 58
-            fn MsgboxI,hWin,"replace",ustr$(eax),MB_OK,500
-
+            
           case 1000
             file_new:
             fn SetWindowText,hWin,"Untitled"
@@ -361,6 +358,14 @@ WndProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
           case 1107
             invoke Select_All,hEdit
 
+          case 1108
+            search:
+            invoke CallSearchDlg
+          
+          case 1109
+            find_next:
+            invoke TextFind,ADDR SearchText, TextLen
+            
           case 1090
           app_close:
             invoke SendMessage,hWin,WM_SYSCOMMAND,SC_CLOSE,NULL
@@ -459,11 +464,6 @@ WndProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
 
         mov tbb.iBitmap,   STD_FIND
         mov tbb.idCommand, 57
-        mov tbb.fsStyle,   TBSTYLE_BUTTON
-        invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
-
-        mov tbb.iBitmap,   STD_REPLACE
-        mov tbb.idCommand, 58
         mov tbb.fsStyle,   TBSTYLE_BUTTON
         invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
 
