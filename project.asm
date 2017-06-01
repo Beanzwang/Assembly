@@ -200,7 +200,7 @@ MsgLoop proc
       je ExitLoop
 
     ; ------------------------------------------------
-    ; process keystrokes directly in the message loop
+    ; process hotkey directly in the message loop
     ; ------------------------------------------------
       .if msg.message == WM_KEYDOWN
         .if msg.wParam == VK_ESCAPE
@@ -287,6 +287,9 @@ WndProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
             cmp BYTE PTR [eax], 0
             jne @F
             return 0
+          @@:
+            invoke file_write,hEdit,fname
+            invoke SetWindowText,hWin,fname
 
           case 53
             invoke SendMessage,hEdit,WM_CUT,0,0
