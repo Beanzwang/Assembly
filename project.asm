@@ -89,7 +89,7 @@ Main proc
   ; --------------------------------------
 
     STRING szClassName,   "Application_Class"
-    STRING szDisplayName, "Untitled"
+    
 
   ; ---------------------------------------------------
   ; set window class attributes in WNDCLASSEX structure
@@ -190,19 +190,59 @@ MsgLoop proc
 
     LOCAL msg:MSG
 
-    push ebx
-    lea ebx, msg
-    jmp getmsg
+  ; -----------------------------------
+  ; Loop until PostQuitMessage is sent
+  ; -----------------------------------
 
-  msgloop:
-    invoke TranslateMessage, ebx
-    invoke DispatchMessage,  ebx
-  getmsg:
-    invoke GetMessage,ebx,0,0,0
-    test eax, eax
-    jnz msgloop
+    StartLoop:
+      invoke GetMessage,ADDR msg,NULL,0,0
+      cmp eax, 0
+      je ExitLoop
 
-    pop ebx
+    ; ------------------------------------------------
+    ; process keystrokes directly in the message loop
+    ; ------------------------------------------------
+      .if msg.message == WM_KEYDOWN
+        .if msg.wParam == VK_ESCAPE
+          invoke SendMessage,hWnd,WM_SYSCOMMAND,SC_CLOSE,NULL
+        .elseif msg.wParam == VK_CONTROL
+          mov CtrlFlag, 1                   ; flag set
+        .endif
+      .endif
+
+      .if msg.message == WM_KEYUP
+        .if msg.wParam == VK_F1
+            invoke SendMessage,hWnd,WM_COMMAND,10000,0
+        .elseif msg.wParam == VK_F2
+            invoke CallSearchDlg
+        .elseif msg.wParam == VK_F3
+            invoke TextFind,ADDR SearchText, TextLen
+        .endif
+        .if msg.wParam == VK_CONTROL
+          mov CtrlFlag, 0                   ; flag clear
+        .elseif msg.wParam == 4Eh           ; Ctrl + N
+          .if CtrlFlag == 1
+            invoke SendMessage,hWnd,WM_COMMAND,1000,0
+          .endif
+        .elseif msg.wParam == 4Fh           ; Ctrl + O
+          .if CtrlFlag == 1
+            invoke SendMessage,hWnd,WM_COMMAND,1010,0
+          .endif
+        .elseif msg.wParam == 53h           ; Ctrl + S
+          .if CtrlFlag == 1
+            invoke SendMessage,hWnd,WM_COMMAND,1020,0
+          .endif
+        .endif
+      .endif
+    ; ------------------------------------------------
+
+      invoke TranslateMessage, ADDR msg
+      invoke DispatchMessage,  ADDR msg
+      jmp StartLoop
+    ExitLoop:
+
+      return msg.wParam
+
     ret
 
 MsgLoop endp
@@ -258,14 +298,11 @@ WndProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
             invoke SendMessage,hEdit,EM_PASTESPECIAL,CF_TEXT,NULL
 
           case 56
-            fn MsgboxI,hWin,"undo",ustr$(eax),MB_OK,500
+            invoke SendMessage,hEdit,EM_UNDO,0,0
 
           case 57
-            fn MsgboxI,hWin,"search",ustr$(eax),MB_OK,500
-
-          case 58
-            fn MsgboxI,hWin,"replace",ustr$(eax),MB_OK,500
-
+            invoke CallSearchDlg
+            
           case 1000
             file_new:
             fn SetWindowText,hWin,"Untitled"
@@ -321,6 +358,14 @@ WndProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
           case 1107
             invoke Select_All,hEdit
 
+          case 1108
+            search:
+            invoke CallSearchDlg
+          
+          case 1109
+            find_next:
+            invoke TextFind,ADDR SearchText, TextLen
+            
           case 1090
           app_close:
             invoke SendMessage,hWin,WM_SYSCOMMAND,SC_CLOSE,NULL
@@ -419,11 +464,6 @@ WndProc proc hWin:DWORD,uMsg:DWORD,wParam:DWORD,lParam:DWORD
 
         mov tbb.iBitmap,   STD_FIND
         mov tbb.idCommand, 57
-        mov tbb.fsStyle,   TBSTYLE_BUTTON
-        invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
-
-        mov tbb.iBitmap,   STD_REPLACE
-        mov tbb.idCommand, 58
         mov tbb.fsStyle,   TBSTYLE_BUTTON
         invoke SendMessage,hToolBar,TB_ADDBUTTONS,1,ADDR tbb
 
