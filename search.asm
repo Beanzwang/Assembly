@@ -66,7 +66,7 @@ SearchProc proc hWin   :DWORD,
                 mov WholeWord, 0
               .endif
 
-              inc TextLen
+              inc TextLen  ; length of the text you request to find
               invoke SendMessage,hEdit2,WM_GETTEXT,TextLen,ADDR SearchText
               invoke TextFind,ADDR SearchText,TextLen
               jmp OutaHere
